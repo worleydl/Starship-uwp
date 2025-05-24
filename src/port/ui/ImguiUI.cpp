@@ -49,7 +49,7 @@ void SetupGuiElements() {
 #if defined(__SWITCH__) || defined(__WIIU__)
         Notification::Emit({ .message = "Press - to access enhancements menu", .remainingTime = 10.0f });
 #else
-        Notification::Emit({ .message = "Press F1 to access enhancements menu", .remainingTime = 10.0f });
+        Notification::Emit({ .message = "Press Select to access enhancements menu", .remainingTime = 10.0f });
 #endif
     }
 
@@ -550,6 +550,10 @@ void DrawMenuBarIcon() {
 }
 
 void DrawGameMenu() {
+    // TODO: Better place to put this
+    ImGuiIO& io = ImGui::GetIO();
+    io.FontGlobalScale = 3.0f;
+
     if (UIWidgets::BeginMenu("Starship")) {
         if (UIWidgets::MenuItem("Reset", "F4")) {
             gNextGameState = GSTATE_BOOT;

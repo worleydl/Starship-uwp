@@ -174,7 +174,7 @@ GameEngine::GameEngine() {
     auto audioChannelsSetting = Ship::Context::GetInstance()->GetConfig()->GetCurrentAudioChannelsSetting();
     this->context->Init(archiveFiles, {}, 3, { 32000, 1024, 1680, audioChannelsSetting }, window, controlDeck);
 
-#ifndef __SWITCH__
+#if !defined(__SWITCH__) && 0
     Ship::Context::GetInstance()->GetLogger()->set_level(
         (spdlog::level::level_enum) CVarGetInteger("gDeveloperTools.LogLevel", 1));
     Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
@@ -301,8 +301,8 @@ void GameEngine::Create() {
     instance->AudioInit();
     DisplayListPatch::Run();
     GameUI::SetupGuiElements();
+    CVarRegisterInteger("gControlNav", 1); // always enable controller nav
 #if defined(__SWITCH__) || defined(__WIIU__)
-    CVarRegisterInteger("gControlNav", 1); // always enable controller nav on switch/wii u
     osSetTime(0);
 #endif
     PortEnhancements_Init();

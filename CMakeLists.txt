@@ -39,21 +39,11 @@ set(YAML_CPP_STATIC_DEFINE ON)
 add_compile_definitions(YAML_CPP_STATIC_DEFINE)
 
 if (WIN32)
-# Setup special UWP deps as dynamic (SDL2 & glfw3)
-set(UWP_DEP_PATH "${CMAKE_SOURCE_DIR}/uwp-dep")
-add_library(SDL2 SHARED IMPORTED GLOBAL)
-set_target_properties(SDL2 PROPERTIES
-	IMPORTED_LOCATION "${UWP_DEP_PATH}/bin/SDL2.dll"
-	IMPORTED_IMPLIB   "${UWP_DEP_PATH}/lib/SDL2.lib"
-	INTERFACE_INCLUDE_DIRECTORIES "${UWP_DEP_PATH}/include/SDL2"
+FetchContent_Declare(UwpLibs
+	GIT_REPOSITORY https://github.com/worleydl/uwp-dep.git
+	GIT_TAG 0cef7e0e25013f41af9acb3885f054ed38f70cdd
 )
-
-add_library(GLFW3 SHARED IMPORTED GLOBAL)
-set_target_properties(SDL2 PROPERTIES
-	IMPORTED_LOCATION "${UWP_DEP_PATH}/bin/glfw3.dll"
-	IMPORTED_IMPLIB   "${UWP_DEP_PATH}/lib/libglfw3dll.lib"
-	INTERFACE_INCLUDE_DIRECTORIES "${UWP_DEP_PATH}/include"
-)
+FetchContent_MakeAvailable(UwpLibs)
 
 # Use vcpkg for everything else
 include(cmake/automate-vcpkg.cmake)
@@ -283,8 +273,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/libultraship/Lib/spdlog/include/
   ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/src/graphic/Fast3D/U64/PR
   ${CMAKE_CURRENT_SOURCE_DIR}/libultraship/src/graphic
-  ${CMAKE_CURRENT_SOURCE_DIR}/uwp-dep/include/SDL2/
-  #${SDL2_INCLUDE_DIRS}
+  ${SDL2_INCLUDE_DIRS}
   ${GLEW_INCLUDE_DIRS}
   ${dr_libs_SOURCE_DIR}
 )
@@ -403,13 +392,7 @@ option(BUILD_SM64 "Build with Super Mario 64 support" OFF)
 option(BUILD_MK64 "Build with Mario Kart 64 support" OFF)
 option(BUILD_FZERO "Build with F-Zero X support" OFF)
 add_subdirectory(tools/Torch)
-# Not sure why I need to do this, the properties aren't working for some reason
-set(SDL_IMPLIB "${CMAKE_SOURCE_DIR}/uwp-dep/lib/SDL2.lib")
-set(UWP_IMPLIB "${CMAKE_SOURCE_DIR}/uwp-dep/lib/libuwp.lib")
-target_link_libraries(${PROJECT_NAME} PRIVATE "${SDL_IMPLIB}" "${UWP_IMPLIB}" torch "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
-
-get_target_property(_libs ${PROJECT_NAME} LINK_LIBRARIES)
-message(STATUS "debug link libraries: ${_libs}")
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL2 LIBUWP GLFW3 torch "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
 
 if(CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch")
 

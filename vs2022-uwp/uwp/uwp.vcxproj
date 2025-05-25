@@ -47,7 +47,12 @@
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <ProjectName>starship</ProjectName>
-    <RecompBuild>$(SolutionDir)../build_vanilla/Release/</RecompBuild>
+    <RecompBase>$(SolutionDir)../build_vanilla/</RecompBase>
+    <RecompDebugBuild>$(RecompBase)Debug/</RecompDebugBuild>
+    <RecompReleaseBuild>$(RecompBase)Release/</RecompReleaseBuild>
+    <RecompBin>$(RecompBase)_deps/uwplibs-src/x64/bin/</RecompBin>
+    <RecompInc>$(RecompBase)_deps/uwplibs-src/x64/include/</RecompInc>
+    <RecompLib>$(RecompBase)_deps/uwplibs-src/x64/lib/</RecompLib>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -220,14 +225,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
       <AdditionalDependencies>
-	      		    $(RecompBuild)Starship.lib;
+	      		    $(RecompDebugBuild)Starship.lib;
 
 	      		    libuwp.lib;
 	      		    SDL2.lib;
 	      	 	    vccorlibd.lib;msvcrtd.lib;
 	      		    WindowsApp.lib;OneCore.lib;
 			    d3d12.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(SolutionDir)\..\uwp-dep\lib; $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(RecompLib); $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
       <IgnoreSpecificDefaultLibraries>vccorlib;msvcrt</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -235,7 +240,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>
-		$(SolutionDir)\..\uwp-dep\include;
+		$(RecompInc);
 		$(ProjectDir);
 		$(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
@@ -248,19 +253,19 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
       <AdditionalDependencies>
-	      		    $(RecompBuild)Starship.lib;
+	      		    $(RecompReleaseBuild)Starship.lib;
 	      		    libuwp.lib;
 			    SDL2.lib; 
 	      		    WindowsApp.lib;OneCore.lib;
 			    d3d12.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(SolutionDir)\..\uwp-dep\lib; $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories); $(RecompLib); $(VCInstallDir)\lib\store\amd64; $(VCInstallDir)\lib\amd64</AdditionalLibraryDirectories>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
     </Link>
     <ClCompile>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
       <AdditionalIncludeDirectories>
-	      	      $(SolutionDir)\..\uwp-dep\include;
+	      	      $(RecompInc);
 		      $(ProjectDir);
 		      $(IntermediateOutputPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
@@ -293,7 +298,7 @@
   </ImportGroup>
   <!-- Bin deps -->
   <ItemGroup>
-    <Content Include="$(SolutionDir)/../uwp-dep/bin/*.dll">
+    <Content Include="$(RecompBin)*.dll">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -301,15 +306,15 @@
       <Link>assets/%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(RecompBuild)/Starship.dll">
+    <Content Include="$(RecompReleaseBuild)/Starship.dll">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="$(SolutionDir)..\uwp-dep\mods\*">
-      <Link>mods\%(Filename)%(Extension)</Link>
+    <None Include="$(SolutionDir)../starship.ico">
+      <Link>mods\.placeholder</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="$(SolutionDir)..\*.o2r">
+    <None Include="$(SolutionDir)../*.o2r">
       <Link>%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -896,7 +896,7 @@ Acmd* AudioSynth_ProcessNote(s32 noteIndex, NoteSubEu* noteSub, NoteSynthesisSta
     u8* samplesToLoadAddr;
     s32 gain;
     u32 nEntries;
-    s32 aligned;
+    s32 aligned, ramAlign;
     s16 addr;
     s32 samplesRemaining;
     s32 numSamplesToDecode;
@@ -1083,7 +1083,22 @@ Acmd* AudioSynth_ProcessNote(s32 noteIndex, NoteSubEu* noteSub, NoteSynthesisSta
                     samplesToLoadAddr = (u8*) (sampleDmaStart + sampleDataOffset + sampleAddr);
                     sampleDataChunkAlignPad = ((uintptr_t) samplesToLoadAddr) % SAMPLES_PER_FRAME;
 
-                    aLoadBuffer(aList++, OS_K0_TO_PHYSICAL(samplesToLoadAddr - sampleDataChunkAlignPad), addr, aligned);
+                    // [UWP] DLW: Reapplying audio fixes that were needed for soh
+                    // I think I'm seeing similar behavior in starship but haven't confirmed 100% yet
+                    // See: https://github.com/worleydl/shipdev/blob/64a5c0f674b8e372a2793bdbf7cfdc06b0070f3c/soh/src/code/audio_synthesis.c#L898
+                    // Thanks again to aerisarn for helping to debug this in soh!
+                    if (bookSample->medium != MEDIUM_RAM) {
+                        aLoadBuffer(aList++, OS_K0_TO_PHYSICAL(samplesToLoadAddr - sampleDataChunkAlignPad), addr, aligned);
+                    } else {
+                        ramAlign =
+                            min((nFramesToDecode * frameSize) + 16,
+                                (bookSample->size) - (sampleDataOffset - sampleDataChunkAlignPad + sampleDmaStart));
+
+                        aLoadBufferNoRound(aList++, OS_K0_TO_PHYSICAL(samplesToLoadAddr - sampleDataChunkAlignPad), addr, ramAlign);
+                        aBackfillBuffer(addr + ramAlign,
+                                        aligned - ramAlign); // Dunno if needed but I make believe this prevents artifacts
+                    }
+
                 } else {
                     numSamplesToDecode = 0;
                     sampleDataChunkAlignPad = 0;
